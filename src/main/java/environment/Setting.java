@@ -3,21 +3,25 @@ package environment;
 /**
  * @Author: Yipeng.Zhang
  * @Description:
- * @Date: Created in 15:59 $ 2018/3/19
+ * @Date: Created in 15:59 2018/3/19
  * @param:
  */
 public class Setting {
-    private int maxLength;
+    public static int MAXLENGTH;
+    public static String SYSTEM;
+    public static String ROOT;
 
-    public Setting(){
-        maxLength = 4096;
+    public Setting() {
+        this.ROOT = System.getProperty("user.dir");
+        checkOS();
     }
 
-    public int getMaxLength() {
-        return maxLength;
+    private void checkOS(){
+        String os = System.getProperty("os.name");
+        if(os.toLowerCase().startsWith("win"))
+            SYSTEM = "Win";
+        else
+            SYSTEM = "Linux";
     }
 
-    public void setMaxLength(int maxLength) {
-        this.maxLength = maxLength;
-    }
 }

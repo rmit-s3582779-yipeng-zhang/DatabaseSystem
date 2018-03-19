@@ -3,7 +3,7 @@ package entity;
 /**
  * @Author: Yipeng.Zhang
  * @Description: contains basic information of the filed, length will be calculated after changing.
- * @Date: Created in 11:58 $ 2018/3/19
+ * @Date: Created in 11:58 2018/3/19
  * @param: Initialize filed
  */
 public class Field {
