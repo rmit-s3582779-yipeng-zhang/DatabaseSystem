@@ -1,28 +1,32 @@
 import environment.Setting;
-import heapfile.HeapFileGenerator;
+import heapfile.HeapFileManager;
 
 /**
  * @Author: Yipeng.Zhang
- * @Description: Main class, initialize heap file from csf file
- * @Date: Created in 23:18 2018/3/19
+ * @Description:
+ * @Date: Created in 22:50 2018/3/20
  */
-public class dpload {
-    private static String parameter1; //parameter for -p
+public class dbquery {
+
     private static int pagesize; //the length of page
     private static String fileName;
 
     public static void main(String[] arg) {
         try {
-            parameter1 = arg[0];
+            fileName = arg[0];
             pagesize = Integer.valueOf(arg[1]);
-            fileName = arg[2];
 
-            dpload dpload = new dpload();
-            dpload.checkParameter(arg);
-            dpload.initializeData(fileName);
+
+            dbquery dbquery = new dbquery();
+            dbquery.checkParameter(arg);
+            dbquery.getQuery();
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
+    }
+
+    public dbquery() {
+
     }
 
     private void checkParameter(String[] arg) throws Exception {
@@ -36,10 +40,13 @@ public class dpload {
         setting.HEAP_FILE_NAME = "heap." + pagesize;
     }
 
-    private void initializeData(String fileName) {
-        HeapFileGenerator heapFileGenerator = new HeapFileGenerator();
-        heapFileGenerator.initializeHeapFile(fileName);
+    private void getQuery() {
+        String query = "Warby Wares";
+        executeQuery(Setting.HEAP_FILE_NAME, query);
     }
 
-
+    private void executeQuery(String fileName, String query) {
+        HeapFileManager heapFileManager = new HeapFileManager(fileName);
+        heapFileManager.executeQuery(query);
+    }
 }

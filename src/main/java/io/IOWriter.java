@@ -22,11 +22,20 @@ public class IOWriter {
         root = Setting.ROOT;
 
         try {
-            file = new File(root + "\\" + outputFilePath);
+            file = new File(root + File.separator + outputFilePath);
             dataOutputStream = new DataOutputStream(new FileOutputStream(file));
         } catch (Exception e) {
             System.err.println("Initialize output IO stream failed");
         }
+    }
+
+    public void writeBinary(byte[] bytes) throws Exception {
+        try {
+            dataOutputStream.write(bytes);
+        } catch (Exception e) {
+            throw new Exception("Write byte[] failed");
+        }
+
     }
 
     public void writeString(String content) throws Exception {
@@ -47,14 +56,17 @@ public class IOWriter {
 
     public void writeInt(int content) throws Exception {
         try {
-            dataOutputStream.write(content);
+            dataOutputStream.writeInt(content);
         } catch (Exception e) {
             throw new Exception("Write Integer failed, content(" + content + ")");
         }
     }
 
     public void close() throws Exception {
-        dataOutputStream.close();
-        throw new Exception("Close IOWriter failed");
+        try {
+            dataOutputStream.close();
+        } catch (Exception e) {
+            throw new Exception("Close IOWriter failed");
+        }
     }
 }

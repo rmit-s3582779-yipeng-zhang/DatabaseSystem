@@ -4,7 +4,6 @@ package entity;
  * @Author: Yipeng.Zhang
  * @Description: contains basic information of the filed, length will be calculated after changing.
  * @Date: Created in 11:58 2018/3/19
- * @param: Initialize filed
  */
 public class Field {
 
@@ -50,19 +49,15 @@ public class Field {
         return length;
     }
 
-    public void setLength(int length) {
-        this.length = length;
-    }
-
     private void calLength() {
         //calculate the binary length of this filed
-
+        // 2 bytes is for the separator "\t"
         if (type == ContentType.Integer)
-            this.length = 4;
+            this.length = 2 + 4; //Integer is 4 byte
         else if (type == ContentType.Double)
-            this.length = 8;
+            this.length = 2 + 8; //Double is 8 byte
         else if (type == ContentType.String)
-            this.length = content.getBytes().length;
+            this.length = 2 + content.getBytes().length * 2; //Each char contains 2 bytes
     }
 
 }

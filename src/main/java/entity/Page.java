@@ -20,7 +20,7 @@ public class Page {
     public Page(int pageID, int maxLength) {
         //initialize setting of Page
         this.pageID = pageID;
-        this.length = 0;
+        this.length = 4; // separator "||"
         this.maxLength = maxLength;
         this.freeSpace = this.maxLength;
         this.recordList = new ArrayList<Record>();
@@ -40,6 +40,10 @@ public class Page {
 
         }
         return false;
+    }
+
+    public int getPageID() {
+        return pageID;
     }
 
     public int getFreeSpace() {

@@ -3,6 +3,7 @@ package io;
 import environment.Setting;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -24,12 +25,7 @@ public class FileReader {
 
         this.inputFilePath = inputFilePath;
         try {
-
-            if (Setting.SYSTEM.equals("Win"))
-                bufferedReader = new BufferedReader(new java.io.FileReader(root + "\\" + inputFilePath));
-
-            if (Setting.SYSTEM.equals("Linux"))
-                bufferedReader = new BufferedReader(new java.io.FileReader(root + "/" + inputFilePath));
+            bufferedReader = new BufferedReader(new java.io.FileReader(root + File.separator + inputFilePath));
 
         } catch (Exception e) {
             e.printStackTrace();

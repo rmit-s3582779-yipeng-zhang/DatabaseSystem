@@ -20,12 +20,7 @@ public class FileWriter {
         root = Setting.ROOT;
 
         try {
-            if (Setting.SYSTEM.equals("Win"))
-                this.outputFilePath = root + "\\" + outputFilePath;
-
-            if (Setting.SYSTEM.equals("Linux"))
-                this.outputFilePath = root + "/" + outputFilePath;
-
+            this.outputFilePath = root + File.separator + outputFilePath;
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -15,7 +15,7 @@ public class Record {
 
     //Initialize Record Class
     public Record(int recordID) {
-        this.length = 4;
+        this.length = 4 + 4; // recordID 4 + separator "\r\n" 4
         this.recordID = recordID;
         this.fieldList = new ArrayList<Field>();
     }
