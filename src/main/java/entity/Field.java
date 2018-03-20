@@ -57,12 +57,12 @@ public class Field {
     private void calLength() {
         //calculate the binary length of this filed
 
-        if (type.equals("Integer"))
+        if (type == ContentType.Integer)
             this.length = 4;
-        else if (type.equals("Double"))
+        else if (type == ContentType.Double)
             this.length = 8;
-        else if (type.equals("String"))
-            this.length = content.length() * 4;
+        else if (type == ContentType.String)
+            this.length = content.getBytes().length;
     }
 
 }

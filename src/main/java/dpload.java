@@ -1,4 +1,5 @@
-import exception.ParameterError;
+import environment.Setting;
+import heapfile.HeapFileManager;
 
 /**
  * @Author: Yipeng.Zhang
@@ -16,16 +17,29 @@ public class dpload {
             parameter1 = arg[0];
             pagesize = Integer.valueOf(arg[1]);
             fileName = arg[2];
+
             dpload dpload = new dpload();
             dpload.checkParameter(arg);
+            dpload.initializeData(fileName);
         } catch (Exception e) {
-            System.err.println("Incorrect parameter!");
+            e.printStackTrace();
         }
     }
 
-    private void checkParameter(String[] arg) throws ParameterError {
+    private void checkParameter(String[] arg) throws Exception {
+        // Validate parameters
         if (pagesize <= 0)
-            throw new ParameterError();
+            throw new Exception("Incorrect parameter!");
+
+        //If all parameters are correct, initialize settings
+        Setting setting = new Setting();
+        setting.MAXLENGTH = pagesize;
+        setting.HEAP_FILE_NAME = "heap." + pagesize;
+    }
+
+    private void initializeData(String fileName) {
+        HeapFileManager heapFileManager = new HeapFileManager();
+        heapFileManager.initializeHeapFile(fileName);
     }
 
 

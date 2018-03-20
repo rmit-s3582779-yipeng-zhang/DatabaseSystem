@@ -29,19 +29,32 @@ public class IOWriter {
         }
     }
 
-    public void writeIOStream(String content) throws Exception {
-        dataOutputStream.writeChars(content);
+    public void writeString(String content) throws Exception {
+        try {
+            dataOutputStream.writeChars(content);
+        } catch (Exception e) {
+            throw new Exception("Write String failed, content(" + content + ")");
+        }
     }
 
-    public void writeIOStream(Double content) throws Exception {
-        dataOutputStream.writeDouble(content);
+    public void writeDouble(Double content) throws Exception {
+        try {
+            dataOutputStream.writeDouble(content);
+        } catch (Exception e) {
+            throw new Exception("Write Double failed, content(" + content + ")");
+        }
     }
 
-    public void writeIOStream(int content) throws Exception {
-        dataOutputStream.write(content);
+    public void writeInt(int content) throws Exception {
+        try {
+            dataOutputStream.write(content);
+        } catch (Exception e) {
+            throw new Exception("Write Integer failed, content(" + content + ")");
+        }
     }
 
     public void close() throws Exception {
         dataOutputStream.close();
+        throw new Exception("Close IOWriter failed");
     }
 }

@@ -1,6 +1,5 @@
 package entity;
 
-import exception.*;
 import java.util.ArrayList;
 
 /**
@@ -11,32 +10,55 @@ import java.util.ArrayList;
  */
 public class Page {
 
+    private int pageID;
     private int length; // the current length of this page.
     private int maxLength; // the limit of max length of page.
+    private int freeSpace; // maxLength - length
     private ArrayList<Record> recordList;
 
     //Initialize Page Class
-    public Page(int maxLength) {
+    public Page(int pageID, int maxLength) {
         //initialize setting of Page
+        this.pageID = pageID;
         this.length = 0;
         this.maxLength = maxLength;
+        this.freeSpace = this.maxLength;
         this.recordList = new ArrayList<Record>();
     }
 
-    public boolean addRecord(Record newRecord) throws AddNewRecordException {
+    public boolean addRecord(Record newRecord) {
         //add a new record into this page
         try {
             if ((this.maxLength - this.length) > newRecord.getLength()) {
                 if (this.recordList.add(newRecord)) {
                     this.length += newRecord.getLength();
+                    this.freeSpace = this.maxLength - this.length;
                     return true;
                 }
             }
         } catch (Exception e) {
-            throw new AddNewRecordException(newRecord);
+
         }
         return false;
     }
 
+    public int getFreeSpace() {
+        return freeSpace;
+    }
 
+    public int getLength() {
+        return length;
+    }
+
+    public void setLength(int length) {
+        this.length = length;
+    }
+
+    public ArrayList<Record> getRecordList() {
+        return recordList;
+    }
+
+    public void setRecordList(ArrayList<Record> recordList) {
+        this.recordList = recordList;
+    }
 }

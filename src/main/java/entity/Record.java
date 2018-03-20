@@ -1,13 +1,11 @@
 package entity;
 
-import exception.*;
 import java.util.ArrayList;
 
 /**
  * @Author: Yipeng.Zhang
  * @Description: A record contains more than one field.
  * @Date: Created in 12:02 2018/3/19
- * @param:
  */
 public class Record {
 
@@ -22,14 +20,15 @@ public class Record {
         this.fieldList = new ArrayList<Field>();
     }
 
-    public boolean addField(Field newField) throws AddNewFiledException {
+    public boolean addField(Field newField) {
         //add a new field into this record
         try {
             this.fieldList.add(newField);
             this.length += newField.getLength();
             return true;
         } catch (Exception e) {
-            throw new AddNewFiledException(this.recordID, newField);
+            System.err.println("Add new field failed in record " + recordID);
+            return false;
         }
     }
 
@@ -72,6 +71,8 @@ public class Record {
     }
 
     public void setFieldList(ArrayList<Field> fieldList) {
-        this.fieldList = fieldList;
+        for (Field field : fieldList) {
+            addField(field);
+        }
     }
 }

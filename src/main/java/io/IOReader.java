@@ -20,6 +20,7 @@ public class IOReader {
     private int maxLength;
 
     public IOReader(String outputFilePath) {
+        // Initialize this class
         root = Setting.ROOT;
         maxLength = Setting.MAXLENGTH;
 
@@ -32,6 +33,7 @@ public class IOReader {
     }
 
     public char[] readIOStream() throws Exception {
+        // Read one page from the data file a time
         int index = 0;
         char content[] = new char[maxLength];
         while (index < maxLength) {
