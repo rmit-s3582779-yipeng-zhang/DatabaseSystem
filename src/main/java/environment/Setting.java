@@ -8,7 +8,7 @@ package environment;
  */
 public class Setting {
     public static int MAX_LENGTH;
-    public static final int MAX_PAGE = 5000; //just for testing, only generate the first page, 0 for all pages
+    public static final int MAX_PAGE = 50; //just for testing, only generate the first page, 0 for all pages
     public static String SYSTEM;
     public static String ROOT;
     public static String HEAP_FILE_NAME;

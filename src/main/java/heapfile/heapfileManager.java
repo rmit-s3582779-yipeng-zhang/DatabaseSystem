@@ -46,10 +46,12 @@ public class HeapFileManager {
     private Page nextPage() {
         byte[] buffer = ioReader.nextPage();
         String pageString = new String(buffer);
+        String recordString[] = pageString.split("\r\n");
         //TODO: split pageString into record and filed
         Page page = null;
         return page;
     }
+
 
 
 }
