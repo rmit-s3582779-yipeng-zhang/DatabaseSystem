@@ -15,16 +15,18 @@ public class Record {
 
     //Initialize Record Class
     public Record(int recordID) {
-        this.length = 4 + 4; // recordID 4 + separator "\r\n" 4
+        // recordID: int, 4 bytes
+        length = 4;
         this.recordID = recordID;
-        this.fieldList = new ArrayList<Field>();
+        fieldList = new ArrayList<Field>();
     }
 
     public boolean addField(Field newField) {
         //add a new field into this record
         try {
+            // using extra 2 bytes as a pointer to index the start address of this field
+            this.length += newField.getLength() + 2; // the end of this field
             this.fieldList.add(newField);
-            this.length += newField.getLength();
             return true;
         } catch (Exception e) {
             System.err.println("Add new field failed in record " + recordID);
@@ -75,4 +77,5 @@ public class Record {
             addField(field);
         }
     }
+
 }

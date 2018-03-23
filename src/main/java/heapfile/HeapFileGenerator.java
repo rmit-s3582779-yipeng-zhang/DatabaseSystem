@@ -25,6 +25,11 @@ public class HeapFileGenerator {
         this.maxLength = Setting.MAX_LENGTH;
     }
 
+    /**
+     * Initialize heap file
+     *
+     * @param filePath file path of heap file
+     */
     public void initializeHeapFile(String filePath) {
         Date startTime, finishTime; // To calculate time
         long timeCost; // Time cost
@@ -50,20 +55,31 @@ public class HeapFileGenerator {
         System.out.println("The number of page:" + pageList.size());
     }
 
+    /**
+     * write pageList into the heap file from prepared page list
+     *
+     * @param pageList prepared page list
+     */
     private void generateHeapFile(ArrayList<Page> pageList) {
-        // write pageList into the heap file
-
         IOWriter ioWriter = new IOWriter(Setting.HEAP_FILE_NAME);
         try {
             for (Page page : pageList) {
                 if (page.getPageID() % 1000 == 0)
-                    System.out.print(".");
+                    System.out.print("."); // keep connecting
+
+                ioWriter.writeShort((short) page.getRecordList().size()); // first 2 byte is the number of record
+                writeRecordIndex(page.getRecordList(), ioWriter); // record index list pointing to each record
+
                 for (Record record : page.getRecordList()) {
                     ioWriter.writeInt(record.getRecordID());
+                    writeFieldIndex(record, ioWriter); // field index list pointing to each field
                     for (Field field : record.getFieldList()) {
                         switch (field.getType()) {
                             case String:
                                 ioWriter.writeString(field.getContent());
+                                break;
+                            case Long:
+                                ioWriter.writeLong(Long.valueOf(field.getContent()));
                                 break;
                             case Double:
                                 ioWriter.writeDouble(Double.valueOf(field.getContent()));
@@ -72,25 +88,73 @@ public class HeapFileGenerator {
                                 ioWriter.writeInt(Integer.valueOf(field.getContent()));
                                 break;
                         }
-                        ioWriter.writeString("\t");
                     }
-                    ioWriter.writeString("\r\n");
                 }
                 //Fill the free space at the end of this page
                 byte bytes[] = new byte[page.getFreeSpace()];
                 Arrays.fill(bytes, (byte) 0);
                 ioWriter.writeBinary(bytes);
-                ioWriter.writeString("||");
             }
             ioWriter.close();
         } catch (Exception e) {
-            System.err.println(e.getMessage());
-            System.err.println(e.getLocalizedMessage());
+            e.printStackTrace();
         }
     }
 
+    /**
+     * write record index into the head of heap file from prepared record list
+     *
+     * @param recordList prepared record list,
+     * @param ioWriter   output io stream
+     */
+    private void writeRecordIndex(ArrayList<Record> recordList, IOWriter ioWriter) {
+        short startAddress = (short) (2 + recordList.size() * 2 + 2);
+        // record id(short 2), record list(short 2 * size), extra address of record for the end address (short 2)
+        ArrayList<Short> indexList = new ArrayList<Short>();
+        for (Record record : recordList) {
+            indexList.add(startAddress);
+            startAddress += (short) (record.getLength() - 2); // move index space
+        }
+        indexList.add(startAddress);// the end of the last record
+        try {
+            for (Short index : indexList) {
+                ioWriter.writeShort(index);
+            }
+        } catch (Exception e) {
+            System.err.println("Generate index list failed.");
+        }
+    }
+
+    /**
+     * write field index into the head of heap file from prepared record list
+     *
+     * @param record   prepared record list
+     * @param ioWriter output io stream
+     */
+    private void writeFieldIndex(Record record, IOWriter ioWriter) {
+        ArrayList<Field> fieldList = record.getFieldList();
+        ArrayList<Short> indexList = new ArrayList<Short>();
+        short startAddress = (short) (4); // recordID; int, 4 bytes
+        startAddress += (short) (fieldList.size() * 2); // record index: short, 2 bytes
+        for (Field field : fieldList) {
+            indexList.add(startAddress);
+            startAddress += field.getLength();
+        }
+        try {
+            for (Short index : indexList) {
+                ioWriter.writeShort(index);
+            }
+        } catch (Exception e) {
+            System.err.println("Generate index list failed.");
+        }
+    }
+
+    /**
+     * read all data from filePath,initialize entity
+     *
+     * @param filePath csv file path
+     */
     private ArrayList<Page> initializePageList(String filePath) {
-        // Initialize entity
         int pageIndex = 0;
         int recordIndex = 0;
         ArrayList<Page> pageList = new ArrayList<Page>();
@@ -110,12 +174,14 @@ public class HeapFileGenerator {
                 ArrayList<Field> fieldList = initializeRecord(line); // Split line
                 newRecord = new Record(recordIndex++); // new Record
                 newRecord.setFieldList(fieldList); // fill fields
+                newRecord.setLength(newRecord.getLength() + 2); // extra 2 bytes for record index
                 // If this page is full, change to a new one
                 if (newPage.getFreeSpace() > newRecord.getLength())
                     newPage.addRecord(newRecord);
                 else {
                     pageList.add(newPage);
                     newPage = new Page(pageIndex++, maxLength);
+                    newPage.addRecord(newRecord);
                     //for testing, only read a part of data
                     if (Setting.MAX_LENGTH != 0 && pageIndex > Setting.MAX_PAGE)
                         return pageList;
@@ -130,8 +196,12 @@ public class HeapFileGenerator {
         return pageList;
     }
 
+    /**
+     * plit line into fields
+     *
+     * @param line a single line from csv file
+     */
     private ArrayList<Field> initializeRecord(String line) throws Exception {
-        // Split line into fields
         ArrayList<Field> fieldList = new ArrayList<Field>();
         String separator = Setting.INPUT_FILE_SEPARATOR; //separator of input file
         String[] filedString = line.split(separator);
@@ -158,7 +228,7 @@ public class HeapFileGenerator {
             fieldList.add(new Field("BN_RENEW_DT", filedString[5], ContentType.String));
             fieldList.add(new Field("BN_STATE_NUM", filedString[6], ContentType.String));
             fieldList.add(new Field("BN_STATE_OF_REG", filedString[7], ContentType.String));
-            fieldList.add(new Field("BN_ABN", filedString[8], ContentType.Double));
+            fieldList.add(new Field("BN_ABN", filedString[8], ContentType.Long));
         } catch (Exception e) {
             throw new Exception("Initialize record failed, missing field");
         }

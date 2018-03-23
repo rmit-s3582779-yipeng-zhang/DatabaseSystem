@@ -51,13 +51,14 @@ public class Field {
 
     private void calLength() {
         //calculate the binary length of this filed
-        // 2 bytes is for the separator "\t"
-        if (type == ContentType.Integer)
-            this.length = 2 + 4; //Integer is 4 byte
+        if (type == ContentType.String)
+            this.length = content.getBytes().length; //Each char contains 1 bytes
+        else if (type == ContentType.Integer)
+            this.length = 4; //Integer is 4 byte
         else if (type == ContentType.Double)
-            this.length = 2 + 8; //Double is 8 byte
-        else if (type == ContentType.String)
-            this.length = 2 + content.getBytes().length * 2; //Each char contains 2 bytes
+            this.length = 8; //Double is 8 byte
+        else if (type == ContentType.Long)
+            this.length = 8; //Long is 8 byte
     }
 
 }

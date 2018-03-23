@@ -20,7 +20,7 @@ public class Page {
     public Page(int pageID, int maxLength) {
         //initialize setting of Page
         this.pageID = pageID;
-        this.length = 4; // separator "||"
+        this.length = 2 + 2; // number of record: short, extra 2 bytes for the end address of the last field
         this.maxLength = maxLength;
         this.freeSpace = this.maxLength;
         this.recordList = new ArrayList<Record>();
@@ -37,7 +37,7 @@ public class Page {
                 }
             }
         } catch (Exception e) {
-
+            System.err.println(e.getMessage());
         }
         return false;
     }

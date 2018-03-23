@@ -40,9 +40,26 @@ public class IOWriter {
 
     public void writeString(String content) throws Exception {
         try {
-            dataOutputStream.writeChars(content);
+            //content.getBytes("UTF-8");
+            writeBinary(content.getBytes("UTF-8"));
         } catch (Exception e) {
             throw new Exception("Write String failed, content(" + content + ")");
+        }
+    }
+
+    public void writeShort(Short content) throws Exception {
+        try {
+            dataOutputStream.writeShort(content);
+        } catch (Exception e) {
+            throw new Exception("Write Short failed, content(" + content + ")");
+        }
+    }
+
+    public void writeLong(Long content) throws Exception {
+        try {
+            dataOutputStream.writeLong(content);
+        } catch (Exception e) {
+            throw new Exception("Write Long failed, content(" + content + ")");
         }
     }
 

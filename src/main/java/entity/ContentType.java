@@ -7,5 +7,5 @@ package entity;
  * @param: The list of type of filed
  */
 public enum ContentType {
-    Integer, Double, String;
+    Integer, Double, String, Long;
 }
