@@ -6,6 +6,7 @@ import environment.Setting;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 
 /**
  * @Author: Yipeng.Zhang
@@ -17,21 +18,18 @@ public class IOReader {
     //private DataInputStream dataInputStream;
     private int pageIndex;
     private FileInputStream fileInputStream;
-    private File file;
-    private String root;
     private int pageSize;
 
-    public IOReader(String inputFilePath) {
+    public IOReader(String inputFilePath) throws Exception{
         pageIndex = 0;
-        root = Setting.ROOT;
         pageSize = Setting.MAX_LENGTH;
-
+        File file;
         try {
             file = new File(inputFilePath);
             fileInputStream = new FileInputStream(file);
         } catch (Exception e) {
-            System.err.println("Initialize input IO stream failed");
-            System.err.println("Please check if file \"" + inputFilePath + "\" is existed");
+            throw new FileNotFoundException("Initialize input IO stream failed! " +
+                    "Please check if file " + inputFilePath + " is existed");
         }
     }
 

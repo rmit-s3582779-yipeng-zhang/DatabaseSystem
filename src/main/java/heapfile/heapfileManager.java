@@ -22,7 +22,7 @@ public class HeapFileManager {
     private Translater translater;
     private ArrayList<Page> pageList;
 
-    public HeapFileManager(String filePath) {
+    public HeapFileManager(String filePath) throws Exception{
         pageList = new ArrayList<Page>();
         ioReader = new IOReader(filePath);
         translater = new Translater();

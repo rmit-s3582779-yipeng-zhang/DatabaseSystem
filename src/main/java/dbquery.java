@@ -1,6 +1,8 @@
 import environment.Setting;
 import heapfile.HeapFileManager;
 
+import java.io.FileNotFoundException;
+
 /**
  * @Author: Yipeng.Zhang
  * @Description:
@@ -46,7 +48,13 @@ public class dbquery {
     }
 
     private void executeQuery(String fileName, String query) {
-        HeapFileManager heapFileManager = new HeapFileManager(fileName);
-        heapFileManager.executeQuery(query);
+        try {
+            HeapFileManager heapFileManager = new HeapFileManager(fileName);
+            heapFileManager.executeQuery(query);
+        } catch (FileNotFoundException e) {
+            System.err.println(e.getMessage());
+        } catch (Exception e) {
+
+        }
     }
 }
