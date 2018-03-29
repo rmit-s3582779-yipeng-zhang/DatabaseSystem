@@ -10,43 +10,48 @@ import java.io.FileNotFoundException;
  */
 public class dbquery {
 
-    private static int pagesize; //the length of page
-    private static String fileName;
+    private static String query;
 
     public static void main(String[] arg) {
         try {
-            fileName = arg[0];
-            pagesize = Integer.valueOf(arg[1]);
-
-
             dbquery dbquery = new dbquery();
             dbquery.checkParameter(arg);
-            dbquery.getQuery();
+            dbquery.executeQuery(Setting.HEAP_FILE_NAME, query);
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
     }
 
-    public dbquery() {
-
-    }
-
+    /**
+     * check parameters, if they are right, start executing query
+     *
+     * @param arg program arguments
+     */
     private void checkParameter(String[] arg) throws Exception {
         // Validate parameters
-        if (pagesize <= 0)
+        if (arg.length <= 0)
             throw new Exception("Incorrect parameter!");
 
-        //If all parameters are correct, initialize settings
-        Setting setting = new Setting();
-        setting.MAX_LENGTH = pagesize;
-        setting.HEAP_FILE_NAME = "heap." + pagesize;
+        try {
+            query = "";
+            for (int i = 0; i < arg.length - 1; i++) {
+                query += arg[i] + " ";
+            }
+            query = query.substring(0, query.length() - 1);
+
+            Setting.MAX_LENGTH = Integer.valueOf(arg[arg.length - 1]);
+            Setting.HEAP_FILE_NAME = "heap." + Setting.MAX_LENGTH;
+        } catch (Exception e) {
+            throw new Exception("Incorrect parameter!");
+        }
     }
 
-    private void getQuery() {
-        String query = "Fit by Lys";
-        executeQuery(Setting.HEAP_FILE_NAME, query);
-    }
-
+    /**
+     *  start executing query
+     *
+     * @param fileName heap file name
+     * @param query query key word
+     */
     private void executeQuery(String fileName, String query) {
         try {
             HeapFileManager heapFileManager = new HeapFileManager(fileName);
@@ -54,7 +59,7 @@ public class dbquery {
         } catch (FileNotFoundException e) {
             System.err.println(e.getMessage());
         } catch (Exception e) {
-
+            System.err.println("Query execute field!");
         }
     }
 }
