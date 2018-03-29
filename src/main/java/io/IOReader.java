@@ -20,7 +20,7 @@ public class IOReader {
     private FileInputStream fileInputStream;
     private int pageSize;
 
-    public IOReader(String inputFilePath) throws Exception{
+    public IOReader(String inputFilePath) throws Exception {
         pageIndex = 0;
         pageSize = Setting.MAX_LENGTH;
         File file;
@@ -33,39 +33,17 @@ public class IOReader {
         }
     }
 
-    public byte[]  nextPage() {
+    /**
+     * get the binary stream of the next page
+     */
+    public byte[] nextPage() {
         byte[] buffer = new byte[pageSize];
         try {
-            fileInputStream.read(buffer, pageIndex, pageSize);
-        } catch (Exception e){
-        }
-        return buffer;
-    }
-
-
-    /*
-    public IOReader(String outputFilePath) {
-        // Initialize this class
-        root = Setting.ROOT;
-        maxLength = Setting.MAXLENGTH;
-
-        try {
-            file = new File(root + File.separator + outputFilePath);
-            dataInputStream = new DataInputStream(new FileInputStream(file));
+            if ((fileInputStream.read(buffer, 0, pageSize)) != -1)
+                return buffer;
+            else return null;
         } catch (Exception e) {
-            System.err.println("Initialize input IO stream failed");
         }
+        return null;
     }
-
-    public char[] readIOStream() throws Exception {
-        // Read one page from the data file a time
-        int index = 0;
-        char content[] = new char[maxLength];
-        while (index < maxLength) {
-            content[index++] = dataInputStream.readChar();
-        }
-        return content;
-    }
-
-    */
 }

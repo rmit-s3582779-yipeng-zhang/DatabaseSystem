@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 
 /**
  * @Author: Yipeng.Zhang
@@ -22,7 +23,7 @@ public class HeapFileManager {
     private Translater translater;
     private ArrayList<Page> pageList;
 
-    public HeapFileManager(String filePath) throws Exception{
+    public HeapFileManager(String filePath) throws Exception {
         pageList = new ArrayList<Page>();
         ioReader = new IOReader(filePath);
         translater = new Translater();
@@ -32,14 +33,25 @@ public class HeapFileManager {
     public void executeQuery(String query) {
         int index = 0;
         Page page;
+        Date startTime, finishTime; // To calculate time
+        long timeCost; // Time cost
+        startTime = new Date();
         while (true) {
             page = nextPage(index++);
-            for (Record record : page.getRecordList()) {
-                showRecordDetail(record);
-                if (record.getFieldList().get(1).equals(query))
-                    showRecordDetail(record);
+            if (page != null) {
+                for (Record record : page.getRecordList()) {
+                    //showRecordDetail(record);
+                    if (record.getFieldList().get(1).getContent().equals(query))
+                        showRecordDetail(record);
+                }
+            } else {
+                System.out.println("Search is finished.");
+                break;
             }
         }
+        finishTime = new Date();
+        timeCost = finishTime.getTime() - startTime.getTime();
+        System.out.println("The time consuming of searching: " + timeCost + "ms");
     }
 
     private void showRecordDetail(Record record) {
@@ -53,14 +65,17 @@ public class HeapFileManager {
         // Generate a new page by reading a next MAX_LENGTH length binary file
         Page page = new Page(pageID, Setting.MAX_LENGTH);
         byte[] buffer = ioReader.nextPage();
-        short recordNumber = getRecordNumber(buffer);
-        ArrayList<Integer> recordIndexList = getRecordIndexList(buffer, recordNumber);
-        ArrayList<byte[]> recordByteList = getRecordByteList(buffer, recordIndexList);
-        ArrayList<Record> recordList = gerRecordList(recordByteList);
-        for (Record record : recordList) {
-            page.addRecord(record);
+        if (buffer != null) {
+            short recordNumber = getRecordNumber(buffer);
+            ArrayList<Integer> recordIndexList = getRecordIndexList(buffer, recordNumber);
+            ArrayList<byte[]> recordByteList = getRecordByteList(buffer, recordIndexList);
+            ArrayList<Record> recordList = gerRecordList(recordByteList);
+            for (Record record : recordList) {
+                page.addRecord(record);
+            }
+            return page;
         }
-        return page;
+        return null;
     }
 
     /**

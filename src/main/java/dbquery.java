@@ -43,7 +43,7 @@ public class dbquery {
     }
 
     private void getQuery() {
-        String query = "Warby Wares";
+        String query = "Fit by Lys";
         executeQuery(Setting.HEAP_FILE_NAME, query);
     }
 

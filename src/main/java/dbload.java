@@ -13,22 +13,43 @@ public class dbload {
 
     public static void main(String[] arg) {
         try {
-            parameter1 = arg[0];
-            pagesize = Integer.valueOf(arg[1]);
-            fileName = arg[2];
+            extractParameter(arg);
 
             dbload dbload = new dbload();
-            dbload.checkParameter(arg);
+            dbload.checkParameter();
             dbload.initializeData(fileName);
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
     }
 
-    private void checkParameter(String[] arg) throws Exception {
+    /**
+     * set setting based on input arg
+     *
+     * @param arg program arguments
+     */
+    private static void extractParameter(String[] arg) throws Exception {
+        try {
+            for (int i = 0; i < arg.length; i++) {
+                if (arg[i].equals("-p")) {
+                    pagesize = Integer.valueOf(arg[++i]);
+                    continue;
+                }
+                fileName = arg[i];
+            }
+        } catch (Exception e) {
+            throw new Exception("Incorrectly input parameter!");
+        }
+
+    }
+
+    /**
+     * Check parameters if they are correct
+     */
+    private void checkParameter() throws Exception {
         // Validate parameters
         if (pagesize <= 0)
-            throw new Exception("Incorrect parameter!");
+            throw new Exception("Page size cannot smaller than 1");
 
         //If all parameters are correct, initialize settings
         Setting setting = new Setting();

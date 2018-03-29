@@ -4,6 +4,8 @@ import environment.Setting;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 /**
@@ -15,18 +17,19 @@ import java.util.ArrayList;
 public class FileReader {
 
     private String line = "";
-    private String inputFilePath;
     private BufferedReader bufferedReader;
     private String root;
 
     public FileReader(String inputFilePath) {
 
         root = Setting.ROOT;
-
-        this.inputFilePath = inputFilePath;
         try {
-            bufferedReader = new BufferedReader(new java.io.FileReader(root + File.separator + inputFilePath));
-
+            File file=new File(root + File.separator + inputFilePath);
+            if(file.isFile() && file.exists()){
+                FileInputStream fileInputStream = new FileInputStream(file);
+                InputStreamReader read = new InputStreamReader(fileInputStream,Setting.ENCODING);
+                bufferedReader = new BufferedReader(read);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -43,14 +46,5 @@ public class FileReader {
             e.printStackTrace();
         }
         return null;
-    }
-
-    public void close() {
-
-        try {
-            bufferedReader.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }

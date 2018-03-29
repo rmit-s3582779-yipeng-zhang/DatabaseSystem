@@ -9,7 +9,6 @@ import io.FileReader;
 import io.IOWriter;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -32,25 +31,25 @@ public class HeapFileGenerator {
      */
     public void initializeHeapFile(String filePath) {
         Date startTime, finishTime; // To calculate time
-        long timeCost; // Time cost
+        long timeCost1, timeCost2; // Time cost
 
         // Start to read data from file
         System.out.print("Start to read the file");
         startTime = new Date();
         ArrayList<Page> pageList = initializePageList(filePath);
         finishTime = new Date();
-        timeCost = finishTime.getTime() - startTime.getTime();
-        System.out.println(""); // change to a new line
-        System.out.println("The time consuming of reading file: " + timeCost + "ms");
+        timeCost1 = finishTime.getTime() - startTime.getTime();
+        System.out.println("The time consuming of reading file: " + timeCost1 + "ms");
 
         // Start to write data into heap file
         System.out.print("Start to write the heap file");
         startTime = new Date();
         generateHeapFile(pageList);
         finishTime = new Date();
-        timeCost = finishTime.getTime() - startTime.getTime();
+        timeCost2 = finishTime.getTime() - startTime.getTime();
         System.out.println(""); // change to a new line
-        System.out.println("The time consuming of writing heap file: " + timeCost + "ms");
+        System.out.println("The time consuming of writing heap file: " + timeCost2 + "ms");
+        System.out.println("The total time consuming: " + (timeCost1 + timeCost2) + "ms");
         System.out.println("HeapFile has been generated");
         System.out.println("The number of page:" + pageList.size());
     }
@@ -92,8 +91,9 @@ public class HeapFileGenerator {
                 }
                 //Fill the free space at the end of this page
                 byte bytes[] = new byte[page.getFreeSpace()];
-                Arrays.fill(bytes, (byte) 0);
+                //Arrays.fill(bytes, (byte) 0);
                 ioWriter.writeBinary(bytes);
+                ioWriter.writeToDisk();
             }
             ioWriter.close();
         } catch (Exception e) {
@@ -155,8 +155,9 @@ public class HeapFileGenerator {
      * @param filePath csv file path
      */
     private ArrayList<Page> initializePageList(String filePath) {
-        int pageIndex = 0;
-        int recordIndex = 0;
+        int recordCount = 0; // number of record
+        int pageIndex = 0; // page id
+        int recordIndex = 0; // record id
         ArrayList<Page> pageList = new ArrayList<Page>();
         Page newPage = new Page(pageIndex++, maxLength);
         Record newRecord;
@@ -167,24 +168,27 @@ public class HeapFileGenerator {
         while (line != null) {
             try {
                 if (recordIndex % 100000 == 0)
-                    System.out.print(".");
+                    System.out.print("."); // show the rate of progress & keep putty connection
                 line = fileReader.getNextLine();
                 if (line == null)
                     continue;
                 ArrayList<Field> fieldList = initializeRecord(line); // Split line
-                newRecord = new Record(recordIndex++); // new Record
-                newRecord.setFieldList(fieldList); // fill fields
-                newRecord.setLength(newRecord.getLength() + 2); // extra 2 bytes for record index
-                // If this page is full, change to a new one
-                if (newPage.getFreeSpace() > newRecord.getLength())
-                    newPage.addRecord(newRecord);
-                else {
-                    pageList.add(newPage);
-                    newPage = new Page(pageIndex++, maxLength);
-                    newPage.addRecord(newRecord);
-                    //for testing, only read a part of data
-                    if (Setting.MAX_LENGTH != 0 && pageIndex > Setting.MAX_PAGE)
-                        return pageList;
+                if (fieldList != null) {
+                    recordCount++;
+                    newRecord = new Record(recordIndex++); // new Record
+                    newRecord.setFieldList(fieldList); // fill fields
+                    newRecord.setLength(newRecord.getLength() + 2); // extra 2 bytes for record index
+                    if (newPage.getFreeSpace() > newRecord.getLength())
+                        newPage.addRecord(newRecord);
+                    else {
+                        // If this page is full, change to a new one
+                        pageList.add(newPage);
+                        newPage = new Page(pageIndex++, maxLength);
+                        newPage.addRecord(newRecord);
+                        //for testing, only read a part of data
+                        //if (Setting.MAX_PAGE != 0 && pageIndex > Setting.MAX_PAGE)
+                        //    return pageList;
+                    }
                 }
             } catch (Exception e) {
                 System.err.println("Initialize this Page Failed");
@@ -193,6 +197,9 @@ public class HeapFileGenerator {
                 System.err.println(e.getMessage());
             }
         }
+        pageList.add(newPage); // add the last page to page list
+        System.out.println("");
+        System.out.println("Record number " + recordCount);
         return pageList;
     }
 
@@ -206,14 +213,15 @@ public class HeapFileGenerator {
         String separator = Setting.INPUT_FILE_SEPARATOR; //separator of input file
         String[] filedString = line.split(separator);
 
-        //using null string to fill the missing field
-        if (filedString.length < 9) {
-            String[] fieldStringFixed = new String[9];
-            for (int i = 0; i < filedString.length; i++)
-                fieldStringFixed[i] = filedString[i];
-            for (int i = filedString.length; i < 9; i++)
-                fieldStringFixed[i] = "";
-            filedString = fieldStringFixed;
+        if (filedString.length != 9) {
+            if (filedString.length < 9) { //using null string to fill the missing field
+                String[] fieldStringFixed = new String[9];
+                System.arraycopy(filedString,0,fieldStringFixed,0,filedString.length);
+                for (int i = filedString.length; i < 9; i++)
+                    fieldStringFixed[i] = "";
+                filedString = fieldStringFixed;
+            } else
+                return null; // abandon if field is much than 9
         }
 
         if (filedString[8] == "" || filedString[8] == null)
