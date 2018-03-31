@@ -31,6 +31,7 @@ public class HeapFileManager {
     }
 
     public void executeQuery(String query) {
+
         int index = 0;
         Page page;
         Date startTime, finishTime; // To calculate time

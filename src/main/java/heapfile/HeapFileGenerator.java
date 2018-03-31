@@ -19,9 +19,11 @@ import java.util.Date;
 public class HeapFileGenerator {
 
     private int maxLength;
+    IOWriter ioWriter;
 
     public HeapFileGenerator() {
         this.maxLength = Setting.MAX_LENGTH;
+        ioWriter = new IOWriter(Setting.HEAP_FILE_NAME);
     }
 
     /**
@@ -31,71 +33,52 @@ public class HeapFileGenerator {
      */
     public void initializeHeapFile(String filePath) {
         Date startTime, finishTime; // To calculate time
-        long timeCost1, timeCost2; // Time cost
+        long timeCost; // Time cost
 
         // Start to read data from file
-        System.out.print("Start to read the file");
+        System.out.print("Start to generate heapfile");
         startTime = new Date();
-        ArrayList<Page> pageList = initializePageList(filePath);
+        initializePageList(filePath);
         finishTime = new Date();
-        timeCost1 = finishTime.getTime() - startTime.getTime();
-        System.out.println("The time consuming of reading file: " + timeCost1 + "ms");
-
-        // Start to write data into heap file
-        System.out.print("Start to write the heap file");
-        startTime = new Date();
-        generateHeapFile(pageList);
-        finishTime = new Date();
-        timeCost2 = finishTime.getTime() - startTime.getTime();
-        System.out.println(""); // change to a new line
-        System.out.println("The time consuming of writing heap file: " + timeCost2 + "ms");
-        System.out.println("The total time consuming: " + (timeCost1 + timeCost2) + "ms");
-        System.out.println("HeapFile has been generated");
-        System.out.println("The number of page:" + pageList.size());
+        timeCost = finishTime.getTime() - startTime.getTime();
+        System.out.println("The time consuming of generating hearfile: " + timeCost + "ms");
     }
 
     /**
      * write pageList into the heap file from prepared page list
      *
-     * @param pageList prepared page list
+     * @param page prepared page
      */
-    private void generateHeapFile(ArrayList<Page> pageList) {
-        IOWriter ioWriter = new IOWriter(Setting.HEAP_FILE_NAME);
+    private void generateHeapFile(Page page) {
+
         try {
-            for (Page page : pageList) {
-                if (page.getPageID() % 1000 == 0)
-                    System.out.print("."); // keep connecting
+            ioWriter.writeShort((short) page.getRecordList().size()); // first 2 byte is the number of record
+            writeRecordIndex(page.getRecordList(), ioWriter); // record index list pointing to each record
 
-                ioWriter.writeShort((short) page.getRecordList().size()); // first 2 byte is the number of record
-                writeRecordIndex(page.getRecordList(), ioWriter); // record index list pointing to each record
-
-                for (Record record : page.getRecordList()) {
-                    ioWriter.writeInt(record.getRecordID());
-                    writeFieldIndex(record, ioWriter); // field index list pointing to each field
-                    for (Field field : record.getFieldList()) {
-                        switch (field.getType()) {
-                            case String:
-                                ioWriter.writeString(field.getContent());
-                                break;
-                            case Long:
-                                ioWriter.writeLong(Long.valueOf(field.getContent()));
-                                break;
-                            case Double:
-                                ioWriter.writeDouble(Double.valueOf(field.getContent()));
-                                break;
-                            case Integer:
-                                ioWriter.writeInt(Integer.valueOf(field.getContent()));
-                                break;
-                        }
+            for (Record record : page.getRecordList()) {
+                ioWriter.writeInt(record.getRecordID());
+                writeFieldIndex(record, ioWriter); // field index list pointing to each field
+                for (Field field : record.getFieldList()) {
+                    switch (field.getType()) {
+                        case String:
+                            ioWriter.writeString(field.getContent());
+                            break;
+                        case Long:
+                            ioWriter.writeLong(Long.valueOf(field.getContent()));
+                            break;
+                        case Double:
+                            ioWriter.writeDouble(Double.valueOf(field.getContent()));
+                            break;
+                        case Integer:
+                            ioWriter.writeInt(Integer.valueOf(field.getContent()));
+                            break;
                     }
                 }
-                //Fill the free space at the end of this page
-                byte bytes[] = new byte[page.getFreeSpace()];
-                //Arrays.fill(bytes, (byte) 0);
-                ioWriter.writeBinary(bytes);
-                ioWriter.writeToDisk();
             }
-            ioWriter.close();
+            //Fill the free space at the end of this page
+            byte bytes[] = new byte[page.getFreeSpace()];
+            ioWriter.writeBinary(bytes);
+            ioWriter.writeToDisk();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -154,11 +137,10 @@ public class HeapFileGenerator {
      *
      * @param filePath csv file path
      */
-    private ArrayList<Page> initializePageList(String filePath) {
+    private void initializePageList(String filePath) {
         int recordCount = 0; // number of record
         int pageIndex = 0; // page id
         int recordIndex = 0; // record id
-        ArrayList<Page> pageList = new ArrayList<Page>();
         Page newPage = new Page(pageIndex++, maxLength);
         Record newRecord;
 
@@ -182,7 +164,7 @@ public class HeapFileGenerator {
                         newPage.addRecord(newRecord);
                     else {
                         // If this page is full, change to a new one
-                        pageList.add(newPage);
+                        generateHeapFile(newPage);
                         newPage = new Page(pageIndex++, maxLength);
                         newPage.addRecord(newRecord);
                         //for testing, only read a part of data
@@ -197,10 +179,9 @@ public class HeapFileGenerator {
                 System.err.println(e.getMessage());
             }
         }
-        pageList.add(newPage); // add the last page to page list
         System.out.println("");
-        System.out.println("Record number " + recordCount);
-        return pageList;
+        System.out.println("Record Number " + recordCount);
+        System.out.println("Page Number " + pageIndex);
     }
 
     /**
@@ -216,7 +197,7 @@ public class HeapFileGenerator {
         if (filedString.length != 9) {
             if (filedString.length < 9) { //using null string to fill the missing field
                 String[] fieldStringFixed = new String[9];
-                System.arraycopy(filedString,0,fieldStringFixed,0,filedString.length);
+                System.arraycopy(filedString, 0, fieldStringFixed, 0, filedString.length);
                 for (int i = filedString.length; i < 9; i++)
                     fieldStringFixed[i] = "";
                 filedString = fieldStringFixed;

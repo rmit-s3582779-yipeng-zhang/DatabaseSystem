@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 /**
  * @Author: Yipeng.Zhang
@@ -16,32 +17,22 @@ import java.util.ArrayList;
  */
 public class FileReader {
 
-    private String line = "";
-    private BufferedReader bufferedReader;
     private String root;
+    Scanner sc = null;
 
     public FileReader(String inputFilePath) {
-
         root = Setting.ROOT;
         try {
-            File file=new File(root + File.separator + inputFilePath);
-            if(file.isFile() && file.exists()){
-                FileInputStream fileInputStream = new FileInputStream(file);
-                InputStreamReader read = new InputStreamReader(fileInputStream,Setting.ENCODING);
-                bufferedReader = new BufferedReader(read);
-            }
+            FileInputStream inputStream = new FileInputStream(root + File.separator + inputFilePath);
+            sc = new Scanner(inputStream, "UTF-8");
         } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
     public String getNextLine() {
-
         try {
-            line = bufferedReader.readLine();
-            if (line != null) {
-                return line;
-            }
+            if (sc.hasNextLine())
+                return (sc.nextLine());
         } catch (Exception e) {
             e.printStackTrace();
         }

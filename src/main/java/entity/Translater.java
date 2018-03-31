@@ -21,6 +21,15 @@ public class Translater {
         return result;
     }
 
+    public long byteToInt(byte[] b) {
+        long result = 0;
+        for (int i = 0; i < 4; i++) {
+            result <<= 8;
+            result |= (b[i] & 0xff);
+        }
+        return result;
+    }
+
     public byte[] intToByte(int number) {
         byte[] targets = new byte[4];
         for (int i = 0; i < 4; i++) {
