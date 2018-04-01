@@ -31,7 +31,7 @@ public class HeapFileManager {
     }
 
     public void executeQuery(String query) {
-
+        boolean ifFind = false; // if find any matched record
         int index = 0;
         Page page;
         Date startTime, finishTime; // To calculate time
@@ -42,14 +42,18 @@ public class HeapFileManager {
             if (page != null) {
                 for (Record record : page.getRecordList()) {
                     //showRecordDetail(record);
-                    if (record.getFieldList().get(1).getContent().equals(query))
+                    if (record.getFieldList().get(1).getContent().contains(query)) {
+                        ifFind = true;
                         showRecordDetail(record);
+                    }
                 }
             } else {
                 System.out.println("Search is finished.");
                 break;
             }
         }
+        if(!ifFind)
+            System.out.println("Can find any matched record");
         finishTime = new Date();
         timeCost = finishTime.getTime() - startTime.getTime();
         System.out.println("The time consuming of searching: " + timeCost + "ms");
