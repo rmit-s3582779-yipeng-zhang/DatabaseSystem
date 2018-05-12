@@ -1,5 +1,6 @@
 package io;
 
+import entity.Block;
 import entity.HashTable;
 import environment.Setting;
 
@@ -12,6 +13,21 @@ import java.util.Date;
  * @Date: Created in 11:20 2018/4/17
  */
 public class Serialize {
+
+    public static void serializeFast(Block block) {
+        //todo: check if the folder is existed.
+        ObjectOutputStream objectOutputStream = null;
+        String fileName = Setting.HASH_FILE + "block." + block.getModIndex() + "." + block.getChainIndex();
+        try {
+            RandomAccessFile raf = new RandomAccessFile(fileName, "rw");
+            FileOutputStream fos = new FileOutputStream(raf.getFD());
+            objectOutputStream = new ObjectOutputStream(fos);
+            objectOutputStream.writeObject(block);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Can not write block." + block.getModIndex() + "." + block.getChainIndex());
+        }
+    }
 
     public static void serializeFast(HashTable hashTable) {
         ObjectOutputStream objectOutputStream = null;
@@ -26,7 +42,7 @@ public class Serialize {
             objectOutputStream.writeObject(hashTable);
             finishTime = new Date();
             timeCost = finishTime.getTime() - startTime.getTime();
-            System.out.println("Hash Table has been written into disk. ("+ timeCost + "ms)");
+            System.out.println("Hash Table has been written into disk. (" + timeCost + "ms)");
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Can not generate Hash Table!");

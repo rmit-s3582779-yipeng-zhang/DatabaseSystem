@@ -24,7 +24,7 @@ public class HeapFileManager {
     private HashTable hashTable;
 
     public HeapFileManager(String filePath) throws Exception {
-        hashTable = Serialize.deserialize();
+        //hashTable = Serialize.deserialize();
         ioReader = new IOReader(filePath);
         translater = new Translater();
     }
@@ -101,7 +101,7 @@ public class HeapFileManager {
         return page;
     }
 
-    private Page nextPage(int pageID) {
+    public Page nextPage(int pageID) {
         // Generate a new page by reading a next MAX_LENGTH length binary file
         byte[] buffer = ioReader.nextPage();
         Page page = generatePage(pageID, buffer);

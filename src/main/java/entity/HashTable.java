@@ -1,6 +1,7 @@
 package entity;
 
 import environment.Setting;
+import io.Serialize;
 
 import java.io.Serializable;
 
@@ -12,21 +13,26 @@ import java.io.Serializable;
 public class HashTable implements Serializable {
     private int mod;
     private Block blockList[];
+    private Serialize serialize;
 
     public HashTable() {
+        serialize = new Serialize();
         mod = Setting.MOD;
         blockList = new Block[mod];
         for (int i = 0; i < mod; i++)
-            blockList[i] = new Block();
+            blockList[i] = new Block(i, 0);
     }
 
     public void add(String name, int pageNumber) {
         int key = hash(name);
         Bucket bucket = new Bucket(name, pageNumber);
-        blockList[key].insertBucket(bucket);
+        if (!blockList[key].insertBucket(bucket)) {
+            serialize.serializeFast(blockList[key]);
+            blockList[key] = new Block(key, blockList[key].getChainIndex() + 1);
+        }
     }
 
-    public int getValue(String name){
+    public int getValue(String name) {
         int key = hash(name);
         return blockList[key].selectBucket(name);
     }
@@ -44,7 +50,6 @@ public class HashTable implements Serializable {
 
     /**
      * For testing, show the distribution of all blocks
-     *
      */
     public void showDistribution() {
         int totalNumber = 0;

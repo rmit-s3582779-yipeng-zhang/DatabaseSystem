@@ -36,12 +36,12 @@ public class HeapFileGenerator {
         long timeCost; // Time cost
 
         // Start to read data from file
-        System.out.print("Start to generate heapfile");
+        System.out.print("Start to generate heapfile and hash tables");
         startTime = new Date();
         initializePageList(filePath);
         finishTime = new Date();
         timeCost = finishTime.getTime() - startTime.getTime();
-        System.out.println("The time consuming of generating hearfile: " + timeCost + "ms");
+        System.out.println("The total time cost: " + timeCost + "ms");
     }
 
     /**

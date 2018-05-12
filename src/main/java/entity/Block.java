@@ -10,32 +10,30 @@ import java.io.Serializable;
  * @Date: Created in 16:17 2018/4/16
  */
 public class Block implements Serializable {
+    private int modIndex; //the index of hashTable
+    private int chainIndex; //the index of this overflow chain
     private int index; // the current location
     private Bucket[] bucketList; // block list
-    private Block nextBlock; // the next block
+    //private Block nextBlock; // the next block
 
-    public Block() {
+    public Block(int modIndex, int chainIndex) {
         index = 0;
         bucketList = new Bucket[Setting.MAX_BLOCK_LENGTH];
+        this.modIndex = modIndex;
+        this.chainIndex = chainIndex;
     }
 
     public int getSize() {
-        int size = index;
-        if (nextBlock != null)
-            size += nextBlock.getSize();
+        int size = index + Setting.MAX_BLOCK_LENGTH * chainIndex;
         return size;
     }
 
-    public void insertBucket(Bucket newBucket) {
-        if (index < Setting.MAX_BLOCK_LENGTH)
+    public boolean insertBucket(Bucket newBucket) {
+        if (index < Setting.MAX_BLOCK_LENGTH) // still have space in this block
             bucketList[index++] = newBucket;
-        else {
-            if (nextBlock == null) {
-                Block newBlock = new Block();
-                nextBlock = newBlock;
-            }
-            nextBlock.insertBucket(newBucket);
-        }
+        else
+            return false;
+        return true;
     }
 
     public int selectBucket(String name) {
@@ -47,10 +45,18 @@ public class Block implements Serializable {
                 return pageNumber;
         }
         // select bucket in the next block
-        if (nextBlock != null)
-            return nextBlock.selectBucket(name);
+        //if (nextBlock != null)
+        //   return nextBlock.selectBucket(name);
         // can't find this record
         return -1;
+    }
+
+    public int getModIndex() {
+        return modIndex;
+    }
+
+    public int getChainIndex() {
+        return chainIndex;
     }
 
 }

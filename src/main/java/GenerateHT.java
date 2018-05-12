@@ -1,23 +1,26 @@
 import environment.Setting;
-import heapfile.HeapFileGenerator;
+import hashtable.HashTableGenerator;
 
 /**
  * @Author: Yipeng.Zhang
- * @Description: Main class, initialize heap file from csf file
- * @Date: Created in 23:18 2018/3/19
+ * @Description:
+ * @Date: Created in 17:45 2018/5/12
  */
-public class dbload {
+public class GenerateHT {
+
     private static String parameter1; //parameter for -p
-    private static int pagesize; //the length of page
+    private static int pageSize; //the length of page
+    private static int hashTableSize; //the length of block
+    private static int mod; // mod - hash function
     private static String fileName;
 
     public static void main(String[] arg) {
         try {
             extractParameter(arg);
 
-            dbload dbload = new dbload();
-            dbload.checkParameter();
-            dbload.initializeData(fileName);
+            GenerateHT generateHT = new GenerateHT();
+            generateHT.checkParameter();
+            generateHT.initializeData(fileName);
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
@@ -32,10 +35,17 @@ public class dbload {
         try {
             for (int i = 0; i < arg.length; i++) {
                 if (arg[i].equals("-p")) {
-                    pagesize = Integer.valueOf(arg[++i]);
+                    pageSize = Integer.valueOf(arg[++i]);
                     continue;
                 }
-                fileName = arg[i];
+                else if(arg[i].equals("-m")){
+                    mod=Integer.valueOf(arg[++i]);
+                    continue;
+                }
+                else if(arg[i].equals("-b")){
+                    hashTableSize=Integer.valueOf(arg[++i]);
+                    continue;
+                }
             }
         } catch (Exception e) {
             throw new Exception("Incorrectly input parameter!");
@@ -48,17 +58,18 @@ public class dbload {
      */
     private void checkParameter() throws Exception {
         // Validate parameters
-        if (pagesize <= 0)
+        if (pageSize <= 0)
             throw new Exception("Page size cannot smaller than 1");
 
         //If all parameters are correct, initialize settings
         Setting setting = new Setting();
-        setting.MAX_LENGTH = pagesize;
-        setting.HEAP_FILE_NAME = "heap." + pagesize;
+        setting.MAX_LENGTH = pageSize;
+        setting.MAX_BLOCK_LENGTH = hashTableSize;
+        setting.MOD = mod;
+        setting.HEAP_FILE_NAME = "heap." + pageSize;
     }
 
     private void initializeData(String fileName) {
-        HeapFileGenerator heapFileGenerator = new HeapFileGenerator();
-        heapFileGenerator.initializeHeapFile(fileName);
+        HashTableGenerator hashTableGenerator=new HashTableGenerator();
     }
 }
