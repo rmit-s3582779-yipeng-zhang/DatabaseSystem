@@ -16,14 +16,12 @@ import java.io.FileNotFoundException;
 public class IOReader {
 
     //private DataInputStream dataInputStream;
-    private int pageIndex;
     private FileInputStream fileInputStream;
     private int pageSize;
+    private File file;
 
     public IOReader(String inputFilePath) throws Exception {
-        pageIndex = 0;
         pageSize = Setting.MAX_LENGTH;
-        File file;
         try {
             file = new File(inputFilePath);
             fileInputStream = new FileInputStream(file);
@@ -31,6 +29,32 @@ public class IOReader {
             throw new FileNotFoundException("Initialize input IO stream failed! " +
                     "Please check if file " + inputFilePath + " is existed");
         }
+    }
+
+    public void restart() {
+        try {
+            fileInputStream = new FileInputStream(file);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * get the binary stream of the next page
+     *
+     * @param pageID the page number of target page
+     */
+    public byte[] findPage(int pageID) {
+        byte[] buffer = new byte[pageSize];
+        long startAddress = (long) pageID * (long) Setting.MAX_LENGTH;
+        try {
+            fileInputStream.skip(startAddress);
+            if ((fileInputStream.read(buffer, 0, pageSize)) != -1)
+                return buffer;
+            else return null;
+        } catch (Exception e) {
+        }
+        return null;
     }
 
     /**

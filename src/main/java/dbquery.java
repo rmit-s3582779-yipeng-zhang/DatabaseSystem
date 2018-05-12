@@ -14,6 +14,7 @@ public class dbquery {
 
     public static void main(String[] arg) {
         try {
+            Setting setting = new Setting();
             dbquery dbquery = new dbquery();
             dbquery.checkParameter(arg);
             dbquery.executeQuery(Setting.HEAP_FILE_NAME, query);
@@ -56,6 +57,8 @@ public class dbquery {
         try {
             HeapFileManager heapFileManager = new HeapFileManager(fileName);
             heapFileManager.executeQuery(query);
+            System.out.println("__________________________________________");
+            heapFileManager.executeQueryHashTable(query);
         } catch (FileNotFoundException e) {
             System.err.println(e.getMessage());
         } catch (Exception e) {

@@ -1,5 +1,7 @@
 package environment;
 
+import java.io.File;
+
 /**
  * @Author: Yipeng.Zhang
  * @Description:
@@ -14,10 +16,14 @@ public class Setting {
     public static String ROOT;
     public static String HEAP_FILE_NAME;
     public static String INPUT_FILE_SEPARATOR = "\t";
+    public static String HASH_FILE;
+    public static final int MAX_BLOCK_LENGTH = 6000;
+    public static final int MOD = 500;
 
 
     public Setting() {
         this.ROOT = System.getProperty("user.dir");
+        this.HASH_FILE = ROOT+ File.separator+"HashTable";
         checkOS();
     }
 

@@ -3,6 +3,7 @@ package heapfile;
 import entity.*;
 import environment.Setting;
 import io.IOReader;
+import io.Serialize;
 
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -18,24 +19,52 @@ import java.util.Date;
  */
 public class HeapFileManager {
 
-    private int recordID;
     private IOReader ioReader;
     private Translater translater;
-    private ArrayList<Page> pageList;
+    private HashTable hashTable;
 
     public HeapFileManager(String filePath) throws Exception {
-        pageList = new ArrayList<Page>();
+        hashTable = Serialize.deserialize();
         ioReader = new IOReader(filePath);
         translater = new Translater();
-        recordID = 0;
+    }
+
+    public void executeQueryHashTable(String query) {
+        ioReader.restart();
+        boolean ifFind = false; // if find any matched record
+        Page page;
+        Date startTime, finishTime; // To calculate time
+        long timeCost; // Time cost
+        System.out.println("Start search with Hash Table");
+        startTime = new Date();
+        int pageNumber = getPageID(query);
+        page = findPage(pageNumber);
+        if (page != null) {
+            for (Record record : page.getRecordList()) {
+                //showRecordDetail(record);
+                if (record.getFieldList().get(1).getContent().contains(query)) {
+                    ifFind = true;
+                    showRecordDetail(record);
+                }
+            }
+        } else {
+            System.out.println("Search with Hash Table is finished.");
+        }
+        if (!ifFind)
+            System.out.println("Can find any matched record");
+        finishTime = new Date();
+        timeCost = finishTime.getTime() - startTime.getTime();
+        System.out.println("The time consuming of searching with Hash Table: " + timeCost + "ms");
     }
 
     public void executeQuery(String query) {
+        ioReader.restart();
         boolean ifFind = false; // if find any matched record
         int index = 0;
         Page page;
         Date startTime, finishTime; // To calculate time
         long timeCost; // Time cost
+        System.out.println("Start search");
         startTime = new Date();
         while (true) {
             page = nextPage(index++);
@@ -52,7 +81,7 @@ public class HeapFileManager {
                 break;
             }
         }
-        if(!ifFind)
+        if (!ifFind)
             System.out.println("Can find any matched record");
         finishTime = new Date();
         timeCost = finishTime.getTime() - startTime.getTime();
@@ -66,10 +95,21 @@ public class HeapFileManager {
         System.out.println("");
     }
 
+    private Page findPage(int pageID) {
+        byte[] buffer = ioReader.findPage(pageID);
+        Page page = generatePage(pageID, buffer);
+        return page;
+    }
+
     private Page nextPage(int pageID) {
         // Generate a new page by reading a next MAX_LENGTH length binary file
-        Page page = new Page(pageID, Setting.MAX_LENGTH);
         byte[] buffer = ioReader.nextPage();
+        Page page = generatePage(pageID, buffer);
+        return page;
+    }
+
+    private Page generatePage(int pageID, byte[] buffer) {
+        Page page = new Page(pageID, Setting.MAX_LENGTH);
         if (buffer != null) {
             short recordNumber = getRecordNumber(buffer);
             ArrayList<Integer> recordIndexList = getRecordIndexList(buffer, recordNumber);
@@ -199,5 +239,12 @@ public class HeapFileManager {
         }
         fieldIndexList.add(recordByte.length);// the end address of the last record
         return fieldIndexList;
+    }
+
+    private int getPageID(String name) {
+        int pageNumber = hashTable.getValue(name);
+        if (pageNumber == -1)
+            System.out.println("Can not find this company!");
+        return pageNumber;
     }
 }
