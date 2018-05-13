@@ -1,43 +1,54 @@
 import environment.Setting;
-import hashtable.HashTableGenerator;
+import hashtable.HashTableManager;
+import heapfile.HeapFileManager;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 
 /**
  * @Author: Yipeng.Zhang
- * @Description: search record from heap file
- * @Date: Created in 17:45 2018/5/12
+ * @Description: search record from record based on
+ * @Date: Created in 8:51 2018/5/13
  */
-public class GenerateHT {
+public class dbqueryHT {
 
-    private static String parameter1; //parameter for -p
+    private static String query;
     private static int pageSize; //the length of page
     private static int hashTableSize; //the length of block
     private static int mod; // mod - hash function
 
     public static void main(String[] arg) {
         try {
-            GenerateHT generateHT = new GenerateHT();
-            extractParameter(arg);
+            dbqueryHT dbqueryHT = new dbqueryHT();
+            dbqueryHT.extractParameter(arg);
+            //dbqueryHT.checkParameter();
+            //dbqueryHT.executeQuery(query);
 
-            //automatically generate hasptables
+            //automatically test hasptables
             for (int i = 1024; i <= 1024; i = i * 2) {
                 mod = i;
-                generateHT.checkParameter();
-                generateHT.initializeData();
+                dbqueryHT.checkParameter();
+                dbqueryHT.executeQuery(query);
             }
+
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
     }
 
     /**
-     * set setting based on input arg
+     * check parameters, if they are right, start executing query
      *
      * @param arg program arguments
      */
-    private static void extractParameter(String[] arg) throws Exception {
+    private void extractParameter(String[] arg) throws Exception {
+
+        // Validate parameters
+        if (arg.length <= 0)
+            throw new Exception("Incorrect parameter!");
+
         try {
+            query = "";
             for (int i = 0; i < arg.length; i++) {
                 if (arg[i].equals("-p")) {
                     pageSize = Integer.valueOf(arg[++i]);
@@ -49,16 +60,16 @@ public class GenerateHT {
                     hashTableSize = Integer.valueOf(arg[++i]);
                     continue;
                 }
+                //combine query
+                query += arg[i] + " ";
             }
-        } catch (Exception e) {
-            throw new Exception("Incorrectly input parameter!");
-        }
 
+            query = query.substring(0, query.length() - 1);
+        } catch (Exception e) {
+            throw new Exception("Incorrect parameter!");
+        }
     }
 
-    /**
-     * Check parameters if they are correct
-     */
     private void checkParameter() throws Exception {
         // Validate parameters
         if (pageSize <= 0)
@@ -67,9 +78,12 @@ public class GenerateHT {
             throw new Exception("Mod cannot be smaller than 1");
         if (hashTableSize <= 0)
             throw new Exception("Block size cannot be smaller than 1");
+        if (query.length() <= 0)
+            throw new Exception("Query cannot be empty!");
 
         //If all parameters are correct, initialize settings
         Setting setting = new Setting();
+
         setting.MAX_LENGTH = pageSize;
         setting.MAX_BLOCK_LENGTH = hashTableSize;
         setting.MOD = mod;
@@ -78,8 +92,17 @@ public class GenerateHT {
                 + "." + hashTableSize + "." + mod + File.separator;
     }
 
-    private void initializeData() {
-        HashTableGenerator hashTableGenerator = new HashTableGenerator();
-        hashTableGenerator.loadPage();
+    /**
+     * start executing query
+     *
+     * @param query    query key word
+     */
+    private void executeQuery(String query) {
+        try {
+            HashTableManager hashTableManager=new HashTableManager();
+            hashTableManager.executeQuery(query);
+        } catch (Exception e) {
+            System.err.println("Query execute field!");
+        }
     }
 }

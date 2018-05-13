@@ -21,40 +21,10 @@ public class HeapFileManager {
 
     private IOReader ioReader;
     private Translater translater;
-    private HashTable hashTable;
 
     public HeapFileManager(String filePath) throws Exception {
-        //hashTable = Serialize.deserialize();
         ioReader = new IOReader(filePath);
         translater = new Translater();
-    }
-
-    public void executeQueryHashTable(String query) {
-        ioReader.restart();
-        boolean ifFind = false; // if find any matched record
-        Page page;
-        Date startTime, finishTime; // To calculate time
-        long timeCost; // Time cost
-        System.out.println("Start search with Hash Table");
-        startTime = new Date();
-        int pageNumber = getPageID(query);
-        page = findPage(pageNumber);
-        if (page != null) {
-            for (Record record : page.getRecordList()) {
-                //showRecordDetail(record);
-                if (record.getFieldList().get(1).getContent().contains(query)) {
-                    ifFind = true;
-                    showRecordDetail(record);
-                }
-            }
-        } else {
-            System.out.println("Search with Hash Table is finished.");
-        }
-        if (!ifFind)
-            System.out.println("Can find any matched record");
-        finishTime = new Date();
-        timeCost = finishTime.getTime() - startTime.getTime();
-        System.out.println("The time consuming of searching with Hash Table: " + timeCost + "ms");
     }
 
     public void executeQuery(String query) {
@@ -88,14 +58,14 @@ public class HeapFileManager {
         System.out.println("The time consuming of searching: " + timeCost + "ms");
     }
 
-    private void showRecordDetail(Record record) {
+    public void showRecordDetail(Record record) {
         for (Field field : record.getFieldList()) {
             System.out.print(field.getContent() + " ");
         }
         System.out.println("");
     }
 
-    private Page findPage(int pageID) {
+    public Page findPage(int pageID) {
         byte[] buffer = ioReader.findPage(pageID);
         Page page = generatePage(pageID, buffer);
         return page;
@@ -241,10 +211,5 @@ public class HeapFileManager {
         return fieldIndexList;
     }
 
-    private int getPageID(String name) {
-        int pageNumber = hashTable.getValue(name);
-        if (pageNumber == -1)
-            System.out.println("Can not find this company!");
-        return pageNumber;
-    }
+
 }

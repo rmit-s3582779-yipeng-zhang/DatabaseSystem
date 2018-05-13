@@ -4,7 +4,6 @@ import entity.*;
 import environment.Setting;
 import io.FileReader;
 import io.IOWriter;
-import io.Serialize;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -18,12 +17,10 @@ public class HeapFileGenerator {
 
     private int maxLength;
     private IOWriter ioWriter;
-    private HashTable hashTable;
 
     public HeapFileGenerator() {
         this.maxLength = Setting.MAX_LENGTH;
         ioWriter = new IOWriter(Setting.HEAP_FILE_NAME);
-        hashTable = new HashTable();
     }
 
     /**
@@ -36,7 +33,7 @@ public class HeapFileGenerator {
         long timeCost; // Time cost
 
         // Start to read data from file
-        System.out.print("Start to generate heapfile and hash tables");
+        System.out.print("Start to generate heapfile");
         startTime = new Date();
         initializePageList(filePath);
         finishTime = new Date();
@@ -163,13 +160,11 @@ public class HeapFileGenerator {
                     newRecord.setLength(newRecord.getLength() + 2); // extra 2 bytes for record index
                     if (newPage.getFreeSpace() > newRecord.getLength()) {
                         newPage.addRecord(newRecord);
-                        hashTable.add(newRecord.getFieldList().get(1).getContent(), pageIndex);
                     } else {
                         // If this page is full, change to a new one
                         generateHeapFile(newPage);
                         newPage = new Page(pageIndex++, maxLength);
                         newPage.addRecord(newRecord);
-                        hashTable.add(newRecord.getFieldList().get(1).getContent(), pageIndex);
                         //for testing, only read a part of data
                         //if (Setting.MAX_PAGE != 0 && pageIndex > Setting.MAX_PAGE)
                         //    return pageList;
@@ -182,11 +177,10 @@ public class HeapFileGenerator {
                 System.err.println(e.getMessage());
             }
         }
+        generateHeapFile(newPage); //write the last page into desk
         System.out.println("");
         System.out.println("Record Number " + recordCount);
         System.out.println("Page Number " + pageIndex);
-        //hashTable.showDistribution();
-        Serialize.serializeFast(hashTable);
     }
 
     /**

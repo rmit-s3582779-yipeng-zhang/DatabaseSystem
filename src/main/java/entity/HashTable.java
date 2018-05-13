@@ -25,10 +25,17 @@ public class HashTable implements Serializable {
 
     public void add(String name, int pageNumber) {
         int key = hash(name);
-        Bucket bucket = new Bucket(name, pageNumber);
+        Bucket bucket = new Bucket(key, pageNumber);
         if (!blockList[key].insertBucket(bucket)) {
             serialize.serializeFast(blockList[key]);
             blockList[key] = new Block(key, blockList[key].getChainIndex() + 1);
+            blockList[key].insertBucket(bucket);
+        }
+    }
+
+    public void storeHashTable(){
+        for(Block block:blockList){
+            serialize.serializeFast(block);
         }
     }
 
@@ -37,7 +44,7 @@ public class HashTable implements Serializable {
         return blockList[key].selectBucket(name);
     }
 
-    private int hash(String str) {
+    public static int hashMod(String str){
         int key = 0;
         char[] chars = str.toCharArray();
         for (int i = 0; i < chars.length; i++) {
@@ -45,7 +52,18 @@ public class HashTable implements Serializable {
         }
         if (key < 0)
             key = Math.abs(key);
-        return key % mod;
+        return key % Setting.MOD;
+    }
+
+    public static int hash(String str) {
+        int key = 0;
+        char[] chars = str.toCharArray();
+        for (int i = 0; i < chars.length; i++) {
+            key = (key * 33) + chars[i];
+        }
+        if (key < 0)
+            key = Math.abs(key);
+        return key;
     }
 
     /**

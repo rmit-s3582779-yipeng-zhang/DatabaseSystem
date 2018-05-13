@@ -8,7 +8,7 @@ import heapfile.HeapFileGenerator;
  */
 public class dbload {
     private static String parameter1; //parameter for -p
-    private static int pagesize; //the length of page
+    private static int pageSize; //the length of page
     private static String fileName;
 
     public static void main(String[] arg) {
@@ -32,7 +32,7 @@ public class dbload {
         try {
             for (int i = 0; i < arg.length; i++) {
                 if (arg[i].equals("-p")) {
-                    pagesize = Integer.valueOf(arg[++i]);
+                    pageSize = Integer.valueOf(arg[++i]);
                     continue;
                 }
                 fileName = arg[i];
@@ -48,13 +48,13 @@ public class dbload {
      */
     private void checkParameter() throws Exception {
         // Validate parameters
-        if (pagesize <= 0)
+        if (pageSize <= 0)
             throw new Exception("Page size cannot smaller than 1");
 
         //If all parameters are correct, initialize settings
         Setting setting = new Setting();
-        setting.MAX_LENGTH = pagesize;
-        setting.HEAP_FILE_NAME = "heap." + pagesize;
+        Setting.MAX_LENGTH = pageSize;
+        Setting.HEAP_FILE_NAME = "heap." + pageSize;
     }
 
     private void initializeData(String fileName) {

@@ -13,10 +13,15 @@ import java.util.Date;
  * @Date: Created in 11:20 2018/4/17
  */
 public class Serialize {
+    public Serialize() {
+        //check folder
+        File directory = new File(Setting.HASH_FILE);
+        if (!directory.exists())
+            directory.mkdir();
+    }
 
     public static void serializeFast(Block block) {
-        //todo: check if the folder is existed.
-        ObjectOutputStream objectOutputStream = null;
+        ObjectOutputStream objectOutputStream;
         String fileName = Setting.HASH_FILE + "block." + block.getModIndex() + "." + block.getChainIndex();
         try {
             RandomAccessFile raf = new RandomAccessFile(fileName, "rw");
@@ -46,6 +51,21 @@ public class Serialize {
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Can not generate Hash Table!");
+        }
+    }
+
+    public static Block deserialize(int modIndex, int chainIndex) {
+        try {
+            Block block;
+            String fileName = Setting.HASH_FILE + "block." + modIndex + "." + chainIndex;
+            FileInputStream fileInputStream = new FileInputStream(fileName);
+            ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+            block = (Block) objectInputStream.readObject();
+            return block;
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Can not read block." + modIndex + "." + chainIndex + "!");
+            return null;
         }
     }
 

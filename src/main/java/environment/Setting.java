@@ -23,7 +23,6 @@ public class Setting {
 
     public Setting() {
         this.ROOT = System.getProperty("user.dir");
-        this.HASH_FILE = ROOT + File.separator + "HashTables" + File.separator;
         checkOS();
     }
 

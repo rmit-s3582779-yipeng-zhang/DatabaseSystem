@@ -14,13 +14,14 @@ public class Block implements Serializable {
     private int chainIndex; //the index of this overflow chain
     private int index; // the current location
     private Bucket[] bucketList; // block list
-    //private Block nextBlock; // the next block
+    private boolean nextBlock; // the next block
 
     public Block(int modIndex, int chainIndex) {
         index = 0;
         bucketList = new Bucket[Setting.MAX_BLOCK_LENGTH];
         this.modIndex = modIndex;
         this.chainIndex = chainIndex;
+        nextBlock = false;
     }
 
     public int getSize() {
@@ -31,8 +32,10 @@ public class Block implements Serializable {
     public boolean insertBucket(Bucket newBucket) {
         if (index < Setting.MAX_BLOCK_LENGTH) // still have space in this block
             bucketList[index++] = newBucket;
-        else
+        else {
+            nextBlock = true;
             return false;
+        }
         return true;
     }
 
@@ -40,7 +43,7 @@ public class Block implements Serializable {
         int pageNumber = -1;
         // select bucket in this block
         for (Bucket bucket : bucketList) {
-            pageNumber = bucket.getValue(name);
+            pageNumber = bucket.getValue(HashTable.hash(name));
             if (pageNumber != -1)
                 return pageNumber;
         }
@@ -57,6 +60,10 @@ public class Block implements Serializable {
 
     public int getChainIndex() {
         return chainIndex;
+    }
+
+    public boolean hasNextOne() {
+        return nextBlock;
     }
 
 }

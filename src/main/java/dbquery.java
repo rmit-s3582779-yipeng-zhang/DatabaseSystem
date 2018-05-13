@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 
 /**
  * @Author: Yipeng.Zhang
- * @Description:
+ * @Description: search record from heap file
  * @Date: Created in 22:50 2018/3/20
  */
 public class dbquery {
@@ -57,8 +57,6 @@ public class dbquery {
         try {
             HeapFileManager heapFileManager = new HeapFileManager(fileName);
             heapFileManager.executeQuery(query);
-            System.out.println("__________________________________________");
-            heapFileManager.executeQueryHashTable(query);
         } catch (FileNotFoundException e) {
             System.err.println(e.getMessage());
         } catch (Exception e) {
