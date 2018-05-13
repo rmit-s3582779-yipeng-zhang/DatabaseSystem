@@ -19,13 +19,17 @@ public class GenerateHT {
         try {
             GenerateHT generateHT = new GenerateHT();
             extractParameter(arg);
+            generateHT.checkParameter();
+            generateHT.initializeData();
 
-            //automatically generate hasptables
-            for (int i = 1024; i <= 1024; i = i * 2) {
+            //automatically generate hasptables - just for testing
+            /*
+            for (int i = 65536; i <= 65536; i = i * 2) {
                 mod = i;
                 generateHT.checkParameter();
                 generateHT.initializeData();
             }
+            */
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
@@ -74,8 +78,8 @@ public class GenerateHT {
         setting.MAX_BLOCK_LENGTH = hashTableSize;
         setting.MOD = mod;
         setting.HEAP_FILE_NAME = "heap." + pageSize;
-        setting.HASH_FILE = setting.ROOT + File.separator + "HashTables." + pageSize
-                + "." + hashTableSize + "." + mod + File.separator;
+        setting.HASH_FILE = setting.ROOT + File.separator + "HashTables." + pageSize + "." + mod
+                + "." + hashTableSize + File.separator;
     }
 
     private void initializeData() {

@@ -21,15 +21,17 @@ public class dbqueryHT {
         try {
             dbqueryHT dbqueryHT = new dbqueryHT();
             dbqueryHT.extractParameter(arg);
-            //dbqueryHT.checkParameter();
-            //dbqueryHT.executeQuery(query);
+            dbqueryHT.checkParameter();
+            dbqueryHT.executeQuery(query);
 
-            //automatically test hasptables
-            for (int i = 1024; i <= 1024; i = i * 2) {
+            //automatically test hasptables - just for testing
+            /*
+            for (int i = 1024; i <= 65536; i = i * 2) {
                 mod = i;
                 dbqueryHT.checkParameter();
                 dbqueryHT.executeQuery(query);
             }
+            */
 
         } catch (Exception e) {
             System.err.println(e.getMessage());
@@ -88,8 +90,8 @@ public class dbqueryHT {
         setting.MAX_BLOCK_LENGTH = hashTableSize;
         setting.MOD = mod;
         setting.HEAP_FILE_NAME = "heap." + pageSize;
-        setting.HASH_FILE = setting.ROOT + File.separator + "HashTables." + pageSize
-                + "." + hashTableSize + "." + mod + File.separator;
+        setting.HASH_FILE = setting.ROOT + File.separator + "HashTables." + pageSize + "." + mod
+                + "." + hashTableSize + File.separator;
     }
 
     /**

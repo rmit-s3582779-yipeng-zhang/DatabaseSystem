@@ -28,8 +28,9 @@ public class Serialize {
             FileOutputStream fos = new FileOutputStream(raf.getFD());
             objectOutputStream = new ObjectOutputStream(fos);
             objectOutputStream.writeObject(block);
+            objectOutputStream.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             System.out.println("Can not write block." + block.getModIndex() + "." + block.getChainIndex());
         }
     }
@@ -49,7 +50,7 @@ public class Serialize {
             timeCost = finishTime.getTime() - startTime.getTime();
             System.out.println("Hash Table has been written into disk. (" + timeCost + "ms)");
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             System.out.println("Can not generate Hash Table!");
         }
     }
@@ -63,7 +64,7 @@ public class Serialize {
             block = (Block) objectInputStream.readObject();
             return block;
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             System.out.println("Can not read block." + modIndex + "." + chainIndex + "!");
             return null;
         }
@@ -79,7 +80,7 @@ public class Serialize {
             System.out.println("Hash Table has been generated.");
             return hashTable;
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
             System.out.println("Can not read Hash Table!");
             return null;
         }
