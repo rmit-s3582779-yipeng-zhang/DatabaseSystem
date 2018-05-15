@@ -23,6 +23,12 @@ public class HashTable implements Serializable {
             blockList[i] = new Block(i, 0);
     }
 
+    /**
+     * add this record into block
+     *
+     * @param name keyword
+     * @param pageNumber page storing this record
+     */
     public void add(String name, int pageNumber) {
         int hashcode = hash(name);
         int key = hashcode % Setting.MOD;
@@ -34,6 +40,9 @@ public class HashTable implements Serializable {
         }
     }
 
+    /**
+     * store all blocks into disk
+     */
     public void storeHashTable() {
         int index = 0;
         for (Block block : blockList) {
@@ -47,6 +56,9 @@ public class HashTable implements Serializable {
         return blockList[key].selectBucket(name);
     }
 
+    /**
+     * get hash code
+     */
     public static int hash(String str) {
         int key = 0;
         char[] chars = str.toCharArray();

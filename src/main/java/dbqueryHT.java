@@ -97,7 +97,7 @@ public class dbqueryHT {
     /**
      * start executing query
      *
-     * @param query    query key word
+     * @param query  query key word
      */
     private void executeQuery(String query) {
         try {

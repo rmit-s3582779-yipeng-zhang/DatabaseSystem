@@ -29,6 +29,11 @@ public class Block implements Serializable {
         return size;
     }
 
+    /**
+     * insert the new bucket to this block
+     *
+     * @param newBucket the new bucket
+     */
     public boolean insertBucket(Bucket newBucket) {
         if (index < Setting.MAX_BLOCK_LENGTH) // still have space in this block
             bucketList[index++] = newBucket;
@@ -39,11 +44,17 @@ public class Block implements Serializable {
         return true;
     }
 
+    /**
+     * check this block to find the target
+     *
+     * @param name the keyword of searching
+     */
     public int selectBucket(String name) {
-        int pageNumber = -1;
+        int pageNumber;
+        int hashCode = HashTable.hash(name);
         // select bucket in this block
-        for (Bucket bucket : bucketList) {
-            pageNumber = bucket.getValue(HashTable.hash(name));
+        for(int i=0;i<index;i++){
+            pageNumber = bucketList[i].getValue(hashCode);
             if (pageNumber != -1)
                 return pageNumber;
         }
